@@ -26,8 +26,6 @@ Image::~Image() {
     stbi_image_free(data);
 }
 
-
-
 bool Image::read(const char* filename, int channel_force) {
 	_data = stbi_load(filename, &_w, &_h, &_channels, channel_force);
 	_channels = channel_force == 0 ? _channels : channel_force;

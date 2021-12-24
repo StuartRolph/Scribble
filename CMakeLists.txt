@@ -12,4 +12,4 @@ add_executable(scribble
         external/stb/stb_image_write.h
         src/Image/Image.cpp
         src/Image/Image.h
-        src/main.cpp)
+        src/main.cpp src/Canvas/Canvas.cpp src/Canvas/Canvas.h src/SVGWriter/SVGWriter.cpp src/SVGWriter/SVGWriter.h)
