@@ -14,6 +14,8 @@ class Canvas {
     int _thickness;
 
 public:
+    const Image& img = _img;
+
     // Canvas constructor / destructor
     Canvas(const Image& img);
     Canvas(int w, int h, int channels = 3);
@@ -29,8 +31,10 @@ public:
     void background(uint8_t b, uint8_t a = 255);
 
     // Draw functions
-    void point(int x, int y);
-    void line(int x0, int y0, int x1, int y1);
+    void point(int px, int py);
+    void point(int px, int py, int r);
+    bool point_overlap(int px, int py, int r);
+    //void line(int x0, int y0, int x1, int y1);
 
     bool save(const char* filename) { return _img.write(filename); }
 

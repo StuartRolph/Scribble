@@ -81,22 +81,54 @@ void Canvas::background(uint8_t b, uint8_t a) {
     }
 }
 
-void Canvas::point(int x, int y) {
-    int x_min = std::max(0, x - _thickness);
-    int x_max = std::min(_img.w - 1, x + _thickness);
-    int y_min = std::max(0, y - _thickness);
-    int y_max = std::min(_img.h - 1, y + _thickness);
+void Canvas::point(int px, int py) {
+    point(px, py, _thickness);
+}
+
+void Canvas::point(int px, int py, int r) {
+    if (r == 0 && 0 <= px && px < _img.w && 0 <= py && py < _img.h) {
+        memcpy(_img.pixel(px, px), _draw_color, _img.channels);
+        return;
+    }
+    int x_min = std::max(0, px - r);
+    int x_max = std::min(_img.w - 1, px + r);
+    int y_min = std::max(0, py - r);
+    int y_max = std::min(_img.h - 1, py + r);
+    int bound = r * r + r;
     if ((0 <= x_max && x_min < _img.w) && (0 <= y_max && y_min < _img.h)) {
-        float r_sq = std::powf(_thickness + 0.5f, 2);
         for (int y_ind = y_min; y_ind <= y_max; y_ind++) {
-            int y_off = y_ind - y;
+            int y_off = y_ind - py;
             for (int x_ind = x_min; x_ind <= x_max; x_ind++) {
-                int x_off = x_ind - x;
-                if (x_off * x_off + y_off * y_off < r_sq)
+                int x_off = x_ind - px;
+                if (x_off * x_off + y_off * y_off < bound)
                     memcpy(_img.pixel(x_ind, y_ind), _draw_color, _img.channels);
             }
         }
     }
+}
+
+bool Canvas::point_overlap(int px, int py, int r) {
+    if (r == 0 && 0 <= px && px < _img.w && 0 <= py && py < _img.h) {
+        // returns false if the pixel color is background color
+        return memcmp(_img.pixel(px, py), _bg_color, _img.channels);
+    }
+    int x_min = std::max(0, px - r);
+    int x_max = std::min(_img.w - 1, px + r);
+    int y_min = std::max(0, py - r);
+    int y_max = std::min(_img.h - 1, py + r);
+    int bound = r * r + r;
+    if ((0 <= x_max && x_min < _img.w) && (0 <= y_max && y_min < _img.h)) {
+        for (int y_ind = y_min; y_ind <= y_max; y_ind++) {
+            int y_off = y_ind - py;
+            for (int x_ind = x_min; x_ind <= x_max; x_ind++) {
+                int x_off = x_ind - px;
+                if (x_off * x_off + y_off * y_off < bound)
+                    if (memcmp(_img.pixel(x_ind, y_ind), _bg_color, _img.channels) != 0)
+                        return true;
+            }
+        }
+    }
+    return false;
 }
 
 

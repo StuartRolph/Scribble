@@ -52,38 +52,14 @@ void SVGWriter::curve_path(const std::vector<float> &points, int width, const st
 
     const float alpha = 0.5f;
     float t[4]; t[0] = 0.0f;
-    for (int i = 0; i < 3; i++) {
-        float xi = points.at(i * 2);
-        float yi = points.at(i * 2 + 1);
-        float xi1 = points.at(i * 2 + 2);
-        float yi1 = points.at(i * 2 + 3);
-        t[i + 1] = std::powf(std::sqrt(std::powf(xi1 - xi, 2) + std::powf(yi1 - yi, 2)), alpha) + t[i];
-    }
 
-    float c1 = (t[2] - t[1]) / (t[2] - t[0]);
-    float c2 = (t[1] - t[0]) / (t[2] - t[0]);
-    float d1 = (t[3] - t[2]) / (t[3] - t[1]);
-    float d2 = (t[2] - t[1]) / (t[3] - t[1]);
-
-    float M1_x = (t[2] - t[1]) * (c1 * (points.at(2) - points.at(0)) / (t[1] - t[0]) + c2 * (points.at(4) - points.at(2)) / (t[2] - t[1]));
-    float M1_y = (t[2] - t[1]) * (c1 * (points.at(3) - points.at(1)) / (t[1] - t[0]) + c2 * (points.at(5) - points.at(3)) / (t[2] - t[1]));
-    float M2_x = (t[2] - t[1]) * (d1 * (points.at(4) - points.at(2)) / (t[2] - t[1]) + d2 * (points.at(6) - points.at(4)) / (t[3] - t[2]));
-    float M2_y = (t[2] - t[1]) * (d1 * (points.at(5) - points.at(3)) / (t[2] - t[1]) + d2 * (points.at(7) - points.at(5)) / (t[3] - t[2]));
-
-    float Q1_x = points.at(2) + M1_x / 3;
-    float Q1_y = points.at(3) + M1_y / 3;
-    float Q2_x = points.at(4) - M2_x / 3;
-    float Q2_y = points.at(5) - M2_y / 3;
-
+    float c1, c2, d1, d2, M1_x, M1_y, M2_x, M2_y, Q1_x, Q1_y, Q2_x, Q2_y;
 
     elements
-        << "\t<path d=\""
-        << "M " << points.at(2) << "," << points.at(3) << " "
-        << "C " << Q1_x << "," << Q1_y << " " << Q2_x << "," << Q2_y
-        << " " << points.at(4) << "," << points.at(5) << " ";
+        << "\t<path d=\"";
 
-    // Rest of the points
-    for (int p = 2; p < points.size() - 7; p += 2) {
+    bool firstPoint = true;
+    for (int p = 0; p < points.size() - 6; p += 2) {
         for (int i = 0; i < 3; i++) {
             float xi = points.at(p + i * 2);
             float yi = points.at(p + i * 2 + 1);
@@ -92,17 +68,35 @@ void SVGWriter::curve_path(const std::vector<float> &points, int width, const st
             t[i + 1] = std::powf(std::sqrt(std::powf(xi1 - xi, 2) + std::powf(yi1 - yi, 2)), alpha) + t[i];
         }
 
-        float d1 = (t[3] - t[2]) / (t[3] - t[1]);
-        float d2 = (t[2] - t[1]) / (t[3] - t[1]);
+        if (firstPoint) {
+            firstPoint = false;
+            c1 = (t[2] - t[1]) / (t[2] - t[0]);
+            c2 = (t[1] - t[0]) / (t[2] - t[0]);
 
-        float M2_x = (t[2] - t[1]) * (d1 * (points.at(p + 4) - points.at(p + 2)) / (t[2] - t[1]) + d2 * (points.at(p + 6) - points.at(p + 4)) / (t[3] - t[2]));
-        float M2_y = (t[2] - t[1]) * (d1 * (points.at(p + 5) - points.at(p + 3)) / (t[2] - t[1]) + d2 * (points.at(p + 7) - points.at(p + 5)) / (t[3] - t[2]));
+            M1_x = (t[2] - t[1]) * (c1 * (points.at(2) - points.at(0)) / (t[1] - t[0]) + c2 * (points.at(4) - points.at(2)) / (t[2] - t[1]));
+            M1_y = (t[2] - t[1]) * (c1 * (points.at(3) - points.at(1)) / (t[1] - t[0]) + c2 * (points.at(5) - points.at(3)) / (t[2] - t[1]));
 
-        float Q2_x = points.at(p + 4) - M2_x / 3;
-        float Q2_y = points.at(p + 5) - M2_y / 3;
+            Q1_x = points.at(2) + M1_x / 3;
+            Q1_y = points.at(3) + M1_y / 3;
+
+            elements
+                << "M " << points.at(2) << "," << points.at(3) << " "
+                << "C " << Q1_x << "," << Q1_y << " ";
+        } else {
+            elements << "S ";
+        }
+
+        d1 = (t[3] - t[2]) / (t[3] - t[1]);
+        d2 = (t[2] - t[1]) / (t[3] - t[1]);
+
+        M2_x = (t[2] - t[1]) * (d1 * (points.at(p + 4) - points.at(p + 2)) / (t[2] - t[1]) + d2 * (points.at(p + 6) - points.at(p + 4)) / (t[3] - t[2]));
+        M2_y = (t[2] - t[1]) * (d1 * (points.at(p + 5) - points.at(p + 3)) / (t[2] - t[1]) + d2 * (points.at(p + 7) - points.at(p + 5)) / (t[3] - t[2]));
+
+        Q2_x = points.at(p + 4) - M2_x / 3;
+        Q2_y = points.at(p + 5) - M2_y / 3;
 
         elements
-            << "S " << Q2_x << "," << Q2_y
+            << Q2_x << "," << Q2_y
             << " " << points.at(p + 4) << "," << points.at(p + 5) << " ";
     }
 
