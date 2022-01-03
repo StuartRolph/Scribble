@@ -18,8 +18,8 @@ public:
     SVGWriter() : _w(0), _h(0) {}
     SVGWriter(int w, int h) : _w(w), _h(h) {}
 
-    void point(float x, float y, int radius = 1, const std::string& stroke = "black");
-    void points(const std::vector<float>& points, int radius = 1, const std::string& stroke = "black");
+    void point(float x, float y, float radius = 1, const std::string& stroke = "black");
+    void points(const std::vector<float>& points, float radius = 1, const std::string& stroke = "black");
     void path(const std::vector<float>& points, int width = 1, const std::string& stroke = "black");
     void curve_path(const std::vector<float>& points, int width = 1, const std::string& stroke = "black");
 

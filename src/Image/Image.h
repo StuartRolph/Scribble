@@ -22,6 +22,7 @@ class Image {
 
     bool write(const char* filename);
     uint8_t* pixel(int x, int y) { return &_data[(y * _w + x) * _channels]; }
+    Image& grayscale(float rx, float gx, float bx);
 
 	private:
 	bool read(const char* filename, int channel_force);

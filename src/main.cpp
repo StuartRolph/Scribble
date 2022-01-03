@@ -6,48 +6,35 @@
 #include "Image/Image.h"
 #include "SVGWriter/SVGWriter.h"
 #include "Canvas/Canvas.h"
+#include "AIS/Stippler.h"
+
+#define randf ((float)rand() / RAND_MAX)
+#define TAU (2.0f * M_PI)
 
 int main() {
 
+
     srand(time(nullptr));
+    rand();
 
-    /*SVGWriter svg;
-    std::vector<float> v;
+    Canvas can(300, 300);
+    float x1 = 150;
+    float y1 = 150;
+    float r1 = randf * 50.0f;
+    float r2 = randf * 50.0f;
+    float alpha = randf * TAU;
 
-    int points = 20;
-    int radius = 100;
-    float amp = 0.5;
+    float x2 = x1 + (r1 + r2) * cos(alpha);
+    float y2 = y1 + (r1 + r2) * sin(alpha);
 
-    float angle = 2 * 3.14159 / points;
-
-    srand(5);
-
-    for (int i = 0; i < points; i++) {
-        float r = radius * (1.0f + amp / 2 - amp * (float)rand() / RAND_MAX);
-        v.push_back(radius * 1.5 + r * cos(i * angle)); v.push_back(radius * 1.5 + r * sin(i * angle));
-    }
-
-    svg.points(v, 2);
-    svg.path(v);
-    svg.curve_path(v, 2, "red");
-    svg.write("../test.svg");*/
+    can.point(x1, y1, r1);
+    can.stroke(255, 0, 0);
+    std::cout << "Overlap: " << can.point_overlap(x2, y2, r2) << "\n";
+    can.point(x2, y2, r2);
 
 
+    can.save("../float_point.png");
 
-    Canvas can(500, 500);
-
-    for (int i = 0; i < 1000; i++) {
-        int size = rand() % 50 + 5;
-        int x = rand() % can.img.w;
-        int y = rand() % can.img.h;
-
-        if (!can.point_overlap(x, y, size)) {
-            can.point(x, y, size);
-        }
-
-    }
-
-    can.save("../canvas.jpg");
 
     return 0;
 }

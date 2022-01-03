@@ -6,11 +6,11 @@
 #include <cmath>
 
 
-void SVGWriter::point(float x, float y, int radius, const std::string &stroke) {
+void SVGWriter::point(float x, float y, float radius, const std::string &stroke) {
     elements << "\t<circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"" << radius << "\" fill=\"" << stroke << "\"/>\n";
 }
 
-void SVGWriter::points(const std::vector<float> &points, int radius, const std::string& stroke) {
+void SVGWriter::points(const std::vector<float> &points, float radius, const std::string& stroke) {
     if (points.size() % 2 == 1) {
         printf("SVGWriter::points: Vector must contain even number of values (contains %d)\n", points.size());
         return;
